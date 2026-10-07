@@ -326,7 +326,10 @@ function distributionOf(answer, choices) {
  * @param presetId - the preset to run.
  * @param input - the text under evaluation.
  * @param options - optional threshold override and relevance context.
- * @returns a verdict carrying the raw score and the applied threshold.
+ * @returns a verdict carrying the raw score, the applied threshold, and the
+ * exact question that was sent. The question is the rubric: for a subjective
+ * predicate it is the only part of the decision with a knowable provenance, so
+ * dropping it leaves the verdict unauditable after the fact.
  */
 async function classifyPreset(ctx, config, presetId, input, options = {}) {
   const preset = PRESET_BY_ID.get(presetId)
@@ -345,7 +348,7 @@ async function classifyPreset(ctx, config, presetId, input, options = {}) {
   }, options.signal)
   const answer = response.answers[0]
   if (answer === undefined || answer.type === 'refusal') {
-    return { classifier: preset.id, answerType: preset.answerType, model: config.model, refused: true, flagged: false, verdict: 'refusal', raw: answer }
+    return { classifier: preset.id, answerType: preset.answerType, model: config.model, question, refused: true, flagged: false, verdict: 'refusal', raw: answer }
   }
   if (preset.answerType === 'predicate') {
     const threshold = clampNumber(options.threshold ?? preset.threshold ?? config.defaultThreshold, 0, 1, 0.5)
@@ -353,6 +356,7 @@ async function classifyPreset(ctx, config, presetId, input, options = {}) {
     const flagged = probability >= threshold
     return {
       classifier: preset.id, answerType: 'predicate', model: config.model,
+      question,
       probability, threshold, flagged,
       verdict: flagged ? 'flag' : 'clear',
       raw: answer,
@@ -364,6 +368,7 @@ async function classifyPreset(ctx, config, presetId, input, options = {}) {
     const flagged = score >= flagAt
     return {
       classifier: preset.id, answerType: 'score', model: config.model,
+      question,
       score, flagAt, flagged,
       confidence: answer.confidence,
       distribution: distributionOf(answer, preset.levels.map((level) => ({ value: level.label }))),
@@ -373,6 +378,7 @@ async function classifyPreset(ctx, config, presetId, input, options = {}) {
   }
   return {
     classifier: preset.id, answerType: 'choice', model: config.model,
+    question,
     choice: answer.choice, confidence: answer.confidence, flagged: false,
     distribution: distributionOf(answer, preset.choices),
     verdict: String(answer.choice),
@@ -711,7 +717,10 @@ export function apply(ctx, rawConfig) {
           })
           stats.classified += 1
           record('ask', String(args.questions.length) + ' question(s)')
-          return JSON.stringify({ model: result.model, answers: result.answers }, null, 2)
+          // Record the questions exactly as normalized and sent, so the rubric is
+          // reconstructible. The full request is deliberately not returned: it can
+          // carry inlined base64 image parts.
+          return JSON.stringify({ model: result.model, questions: result.request.questions, answers: result.answers }, null, 2)
         } catch (error) {
           stats.errors += 1
           return 'decisions_ask failed: ' + String(error?.message ?? error)
