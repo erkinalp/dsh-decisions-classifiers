@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "决策分类器",
+    "description": "OpenAI Decisions API 分类器：predicate/choice/score 工具、内置分类器库、可选调用闸门，以及多选题卡片上的一键分类器建议。"
+  }
+}

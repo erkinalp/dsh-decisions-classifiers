@@ -1,0 +1,27 @@
+# dsh-decisions-classifiers bundle patch.
+#
+# One host row carries every capability; the browser half is discovered through
+# package.json `dsh.client` + `exports["./client"]` and needs no row of its own.
+#
+# Everything below is the shipped default. Live edits made in Settings ->
+# Decisions Classifiers persist to ~/.dsh/decisions-classifiers/config.json and
+# win over these values; the row config is for pinning a deployment.
+
+- insert:
+    - id: dsh-decisions-classifiers
+      name: 'dsh-decisions-classifiers'
+      config:
+        enabled: true
+        baseUrl: https://api.openai.com/v1
+        model: gpt-6-luna
+        apiKeyEnv: OPENAI_API_KEY
+        timeoutMs: 60000
+        defaultThreshold: 0.5
+        advisorEnabled: true
+        # The per-call gate is opt-in: installing the plugin must not change how
+        # any agent behaves until the user turns it on.
+        gateEnabled: false
+        gatePreset: dangerous-command
+        gateThreshold: 0.5
+        gateDecision: deny
+        systemPromptSection: true

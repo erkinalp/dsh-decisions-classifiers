@@ -1,0 +1,54 @@
+{
+  "name": "dsh-decisions-classifiers",
+  "version": "0.1.0",
+  "description": "OpenAI Decisions API for DeepSeek Harness: predicate/choice/score classifiers as agent tools and an injectable service, a built-in classifier library, an opt-in pre-execution gate, a Settings page, and a \"let a classifier decide\" card beside ask_user_question multiple-choice prompts.",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "openai",
+    "decisions",
+    "gpt-6-luna",
+    "classifier",
+    "ask-user-question",
+    "second-opinion",
+    "moderation",
+    "rubric"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  }
+}

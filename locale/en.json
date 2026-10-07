@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Decisions Classifiers",
+    "description": "OpenAI Decisions API classifiers: predicate/choice/score tools, a classifier library, an opt-in call gate, and a one-click classifier opinion beside multiple-choice questions."
+  }
+}
